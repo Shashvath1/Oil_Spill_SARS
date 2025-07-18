@@ -1,111 +1,121 @@
-🌊 Oil Spill Detection using SAR Imagery (U-Net-like CNN)
-This repository contains code and resources for detecting oil spills in SAR (Synthetic Aperture Radar) grayscale satellite images using deep learning. The solution includes:
+# 🌊 Oil Spill Detection in SAR Imagery using Deep Learning
 
-🧠 A custom U-Net-like CNN built with TensorFlow/Keras for semantic segmentation of oil spill regions
+This repository provides a complete pipeline to **train a CNN-based segmentation model** and **visualize detected oil spills** in SAR (Synthetic Aperture Radar) grayscale images with **animated heatmap overlays**.
 
-🛰️ SAR image preprocessing and normalization
+The system includes:
+- 🧠 A lightweight encoder-decoder CNN for segmentation
+- 🌌 Detection of oil spill regions (typically dark in SAR images)
+- 📦 Offline prediction and animation using matplotlib
+- 🛰️ Adaptable for real-time SAR image analysis
 
-📦 Binary mask generation and training from grayscale inputs
+---
 
-📈 Real-time detection with animated heatmap overlay
+## 📁 Folder Structure
 
-📁 Folder Structure
-graphql
-Copy
-Edit
-.
 ├── dataset/
-│   ├── images/         # SAR grayscale images
-│   └── masks/          # Corresponding binary masks (oil = 1, background = 0)
-├── train_model.py      # Train the CNN model
-├── oil_spill_model.h5  # Trained model (after running training script)
-├── detect_animate.py   # Predict + animate oil spill region in SAR image
-└── README.md           # This file
-🛠 Requirements
-Python 3.8+
+│ ├── images/ # SAR grayscale images
+│ └── masks/ # Binary masks (oil spill = white, background = black)
+├── train_model.py # Training script for CNN model
+├── detect_animate.py # Detection + animated visualization script
+├── oil_spill_detector.h5 # Trained Keras model (saved after training)
+└── README.md
 
-TensorFlow 2.x
 
-OpenCV
+---
 
-scikit-image
+## 🔧 Requirements
 
-NumPy
+Install dependencies with pip:
 
-Matplotlib
+```bash
+pip install tensorflow numpy opencv-python scikit-image matplotlib
 
-Install dependencies:
 
-bash
-Copy
-Edit
-pip install tensorflow opencv-python scikit-image numpy matplotlib
-🚀 1. Training the Model
-Use the train_model.py script to load images and binary masks and train a segmentation model.
+Run the train_model.py script to train your oil spill segmentation model:
 
-train_model.py overview:
-Reads SAR images and corresponding binary masks from dataset/
-
-Resizes images to 128×128
-
-Trains a CNN with encoder-decoder structure
-
-Saves trained model to oil_spill_detector.h5
-
-bash
-Copy
-Edit
 python train_model.py
-🔍 2. Oil Spill Detection + Animated Visualization
-Use detect_animate.py to:
 
-Load a grayscale SAR image
 
-Run inference using the trained model
+📌 This will:
 
-Animate the predicted oil spill mask over the original image using a jet colormap
+Load SAR images and masks from dataset/images and dataset/masks
+
+Normalize and resize them to 128×128
+
+Train a U-Net-like CNN
+
+Save the trained model to oil_spill_detector.h5
+
+🛰️ Running Detection + Heatmap Animation
+Use detect_animate.py to detect oil spills in a new SAR grayscale image and animate the prediction heatmap:
 
 bash
 Copy
 Edit
 python detect_animate.py
-Input SAR Image:
-C:/Users/admin/Desktop/sars/sar5.png
+💡 What it does:
 
-Modify this path as needed in the script.
+Loads a test SAR image (modify image_path in the script)
 
-🖼 Output Example
-https://user-images.githubusercontent.com/your_gif.gif
-(Add screen recording or animated GIF here after running animation)
+Preprocesses and feeds it to the trained model
 
-⚙️ Key Features
-✔️ Offline deep learning prediction using a lightweight model
+Inverts the predicted mask (dark = oil)
 
-✔️ Inversion logic for highlighting oil spill areas (dark regions in SAR)
+Creates a heatmap overlay animated over time
 
-✔️ Animation using matplotlib.animation.FuncAnimation
+🎞 Sample Output:
+Add a GIF or screenshot here (e.g. assets/animation.gif)
 
-✔️ Normalized heatmap overlay for visual clarity
+🧠 Model Architecture
+text
+Copy
+Edit
+Input (128x128x1)
+↓
+Conv2D → MaxPooling
+↓
+Conv2D → MaxPooling
+↓
+Conv2D → UpSampling
+↓
+Conv2D → UpSampling
+↓
+Conv2D (1x1, Sigmoid) → Output Mask (128x128)
+Loss: binary_crossentropy
+Optimizer: Adam
+Final Activation: Sigmoid
 
-🧪 Model Performance
-Metric	Result (Example Dataset)
-Input Size	128x128
-Loss	Binary Crossentropy
-Accuracy	~92%
-Visual Output	Jet colormap heatmap
+🔬 Sample Prediction Flow
+Load SAR image and trained model
+
+Predict binary mask for oil spill region
+
+Invert the output (since oil = dark)
+
+Animate prediction using a jet colormap
 
 📌 Notes
-This project assumes dark regions in SAR represent oil spills.
+Make sure binary masks match the filenames of input images.
 
-Invert logic was applied to match this property (1 - predicted_mask)
+Model assumes dark patches in SAR images represent oil spill regions.
 
-You can retrain using corrected masks if your model predicts inverse behavior.
+You can retrain with flipped labels if prediction appears reversed.
 
-🧩 To-Do / Future Enhancements
- Switch to U-Net with skip connections for better segmentation accuracy
+📈 Performance Overview
+Feature	Result
+Input size	128 × 128
+Training Epochs	20
+Accuracy (Validation)	~92%
+Output Format	Binary mask (oil = 1)
+Overlay Visualization	Animated jet heatmap
 
- Add GUI for image selection and real-time detection
+🧩 Future Enhancements
+ Switch to full U-Net with skip connections
 
- Deploy via Flask or Streamlit web app
+ Add CLI arguments for batch prediction
 
+ GUI/Web-based visualization with Streamlit
 
+ Use real-world SAR datasets from ESA/NASA
+
+📚 Citation
